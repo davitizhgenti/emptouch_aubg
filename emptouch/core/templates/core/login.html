@@ -1,0 +1,41 @@
+<!-- core/templates/core/login.html -->
+{% extends "core/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login | Emptouch{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-center">Welcome Back</h2>
+                <p class="text-center text-muted mb-4">Please log in with your AUBG SIS credentials.</p>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- --- THIS IS THE FIX --- -->
+                <!-- 1. We add the <form> tag back with the correct method. -->
+                <form method="post" action="{% url 'login' %}">
+                    
+                    <!-- 2. This is the critical line that was missing from the request. -->
+                    {% csrf_token %}
+                    
+                    <!-- 3. Crispy now only renders the form fields ('username' and 'password'). -->
+                    {% crispy form %}
+
+                    <!-- 4. We add the submit button back into the template. -->
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Log In</button>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+<!-- core/templates/core/dashboard.html -->
+{% extends "core/base.html" %}
+
+{% block title %}Dashboard | Emptouch{% endblock %}
+
+{% block content %}
+  <h2>Dashboard</h2>
+  <hr>
+  <section class="widget-container">
+    
+    {% for widget_html in rendered_widgets %}
+      
+      <!-- 
+        THIS IS THE FIX: We are now rendering a raw HTML string.
+        The 'safe' filter tells Django not to escape the HTML characters.
+        There is no 'include' or 'with' tag, so the original error is impossible.
+      -->
+      {{ widget_html|safe }}
+
+    {% empty %}
+      <!-- This block will render if the list of widgets is empty -->
+      <div class="card" style="padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
+        <p>No widgets are available for your account.</p>
+        <p><small>(This is the default view until feature apps like 'grades' or 'schedule' are added and you have permission to view them.)</small></p>
+      </div>
+    {% endfor %}
+
+  </section>
+{% endblock %}

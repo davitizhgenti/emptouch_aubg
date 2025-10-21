@@ -1,0 +1,105 @@
+{% extends "core/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}SIS Tester | Emptouch{% endblock %}
+
+{% block extra_head %}
+{# This block adds our custom styles to the <head> of the document #}
+<style>
+    /* Style for the container of the scrollable result box */
+    #result-box-container {
+        height: 80vh;      /* Set a fixed height */
+        overflow-y: auto;  /* Add a vertical scrollbar */
+        padding: 0;        /* Remove padding to let the <pre> tag fill it */
+    }
+    
+    /* Ensure the <pre> tag inside fills the container and has no bottom margin */
+    #result-box-container pre {
+        height: 100%;
+        margin-bottom: 0;
+        border-radius: 0; /* Remove rounding from the top corners */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-lg-4">
+            <h3>SIS Request Tester</h3>
+            <p class="text-muted">Enter a fuseaction or AJAX details to make a request to the Empower SIS.</p>
+            
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    {% crispy form %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <h3>Result</h3>
+            
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            
+            {% if result_html %}
+                
+                <!-- --- THIS IS THE NEW, IMPROVED STRUCTURE --- -->
+                <div class="card shadow-sm">
+                    <!-- 1. A clean header for the card -->
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Response HTML</span>
+                        <!-- 2. The copy button is now properly placed here -->
+                        <button id="copy-button" class="btn btn-sm btn-outline-secondary">Copy</button>
+                    </div>
+
+                    <!-- 3. The card body is now the scrollable container -->
+                    <div class="card-body" id="result-box-container">
+                        <pre id="result-box" class="bg-dark text-light p-3"><code>{{ result_html }}</code></pre>
+                    </div>
+                </div>
+                
+            {% else %}
+                <div class="card shadow-sm">
+                    <div class="card-body text-center text-muted" style="height: 80vh; display: flex; align-items: center; justify-content: center;">
+                        <p>The HTML response from the server will be displayed here.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if result_html %}
+    <!-- The JavaScript logic remains the same but is more robust -->
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const copyButton = document.getElementById('copy-button');
+            const resultBox = document.getElementById('result-box'); // We target the <pre> tag
+
+            if (copyButton && resultBox) {
+                copyButton.addEventListener('click', () => {
+                    const textToCopy = resultBox.querySelector('code').innerText;
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        const originalText = copyButton.innerText;
+                        copyButton.innerText = 'Copied!';
+                        copyButton.classList.remove('btn-outline-secondary');
+                        copyButton.classList.add('btn-success');
+                        
+                        setTimeout(() => {
+                            copyButton.innerText = originalText;
+                            copyButton.classList.remove('btn-success');
+                            copyButton.classList.add('btn-outline-secondary');
+                        }, 2000);
+
+                    }).catch(err => {
+                        console.error('Failed to copy text: ', err);
+                        alert('Failed to copy to clipboard.');
+                    });
+                });
+            }
+        });
+    </script>
+{% endif %}
+{% endblock %}
